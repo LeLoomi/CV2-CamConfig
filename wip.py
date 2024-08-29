@@ -3,16 +3,14 @@ import json
 import time
 
 def load_settings(stream_object):
-    with open('./config.json', 'r') as f:
+    with open('./camconfig.json', 'r') as f:
         data = json.load(f)
 
     # loop settings entries
-    stream_object.set(getattr(cv, 'CAP_PROP_AUTO_EXPOSURE'), 3)
-    time.sleep(1)
     for prop, value in data.items():
         stream_object.set(getattr(cv, prop), float(value)) # getattr to retrieve constant int keys from cv
         print(str(prop) + ': ' + str(value))
-        time.sleep(1)
+        #time.sleep(1)
 
 def main(cam_index):
     # Detect video backend
@@ -22,6 +20,7 @@ def main(cam_index):
     match videoBackendString:
         case 'AVFOUNDATION': videoBackendKey = cv.CAP_AVFOUNDATION
         case 'V4L2': videoBackendKey = cv.CAP_V4L2
+        case 'MSMF': videoBackendKey = cv.CAP_DSHOW     # ? every MSMF device should have DirectX in some way, no? this might crash and burn lol
         case _:
             videoBackendKey = cv.CAP_ANY   # ! if this happens then yikes, our settings won't get applied i think
             raise KeyError('Could not match video api key for {}'.format(videoBackendString))
